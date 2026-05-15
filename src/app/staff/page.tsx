@@ -132,9 +132,6 @@ export default function StaffCalendar() {
     <div style={{ margin: '0 -0.5rem', padding: '0.5rem 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', padding: '0 0.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', color: 'var(--primary-color)' }}>シフトカレンダー</h1>
-        <Link href="/staff/apply" className="btn-primary" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
-          ＋ シフト申請
-        </Link>
       </div>
 
       <div style={{ backgroundColor: 'var(--surface-color)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>

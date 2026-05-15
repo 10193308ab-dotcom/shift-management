@@ -8,7 +8,6 @@ export default function BottomNav() {
 
   const navItems = [
     { name: 'カレンダー', path: '/staff', icon: '📅' },
-    { name: 'シフト申請', path: '/staff/apply', icon: '✏️' },
     { name: 'TODO', path: '/staff/todo', icon: '✅' },
     { name: '設定', path: '/staff/profile', icon: '👤' },
   ];
