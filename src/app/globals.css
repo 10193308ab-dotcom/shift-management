@@ -38,3 +38,120 @@ ul {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* =========================================
+   App Layout
+   ========================================= */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 1.5rem;
+  padding-bottom: 5rem; /* Space for bottom nav on mobile */
+  background-color: var(--bg-color);
+  margin-left: 0;
+}
+
+/* Sidebar (Hidden on mobile) */
+.sidebar {
+  display: none;
+  width: 250px;
+  background-color: var(--surface-color);
+  border-right: 1px solid var(--border-color);
+  flex-direction: column;
+  padding: 1.5rem 0;
+}
+
+.sidebar-header {
+  padding: 0 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  background-color: var(--warning-color);
+  color: #000;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+  background-color: #eaf4ff;
+  color: var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+}
+
+.sidebar-icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
+
+/* Bottom Nav (Mobile only) */
+.bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  z-index: 1000;
+  height: 60px;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8e8e93;
+  font-size: 0.7rem;
+  padding: 0.25rem 0;
+}
+
+.nav-item.active {
+  color: var(--primary-color);
+}
+
+.nav-icon {
+  font-size: 1.3rem;
+  margin-bottom: 0.1rem;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+  
+  .bottom-nav {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 1.5rem; /* Reset padding on desktop */
+  }
+}

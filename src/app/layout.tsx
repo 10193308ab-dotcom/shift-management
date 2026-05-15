@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AppLayout from "@/components/layout/AppLayout";
 
 export const metadata: Metadata = {
   title: "シフト管理アプリ",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        {children}
+        <AppLayout>
+          {children}
+        </AppLayout>
       </body>
     </html>
   );
