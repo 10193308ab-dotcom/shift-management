@@ -3,10 +3,30 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [storeName, setStoreName] = useState('店舗用');
+
+  useEffect(() => {
+    const fetchStoreName = async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) return;
+
+      const { data: userData } = await supabase
+        .from('Users')
+        .select('*, StoreSettings(StoreName)')
+        .eq('UserID', authData.user.id)
+        .single();
+        
+      if (userData?.StoreSettings?.StoreName) {
+        setStoreName(userData.StoreSettings.StoreName);
+      }
+    };
+    fetchStoreName();
+  }, []);
 
   const navItems = [
     { name: 'ダッシュボード', path: '/manager', icon: '📊' },
@@ -25,7 +45,9 @@ export default function Sidebar() {
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div className="sidebar-header">
         <h2>シフト管理</h2>
-        <span className="badge">店舗用</span>
+        <span className="badge" style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '4px', backgroundColor: 'var(--primary-color)', color: '#fff', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {storeName}
+        </span>
       </div>
       <nav className="sidebar-nav" style={{ flexGrow: 1 }}>
         {navItems.map((item) => {
