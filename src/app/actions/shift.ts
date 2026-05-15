@@ -12,11 +12,25 @@ export async function updateShiftStatus(
     return { error: '必要な情報が不足しています' };
   }
 
-  const updateData: any = { Status: status };
+  let updateData: any = { Status: status };
   
   if (status === '調整済' && startTime && endTime) {
-    updateData.StartTime = startTime;
-    updateData.EndTime = endTime;
+    // 現在のシフトを取得して、Original時間がまだ保存されていなければ保存する
+    const { data: currentShift } = await supabaseAdmin
+      .from('Shifts')
+      .select('StartTime, EndTime, OriginalStartTime, OriginalEndTime')
+      .eq('ShiftID', shiftId)
+      .single();
+
+    if (currentShift) {
+      updateData.StartTime = startTime;
+      updateData.EndTime = endTime;
+      // すでにOriginalが設定されていなければ（初回調整時）、元の時間をOriginalに保存
+      if (!currentShift.OriginalStartTime) {
+        updateData.OriginalStartTime = currentShift.StartTime;
+        updateData.OriginalEndTime = currentShift.EndTime;
+      }
+    }
   }
 
   const { error } = await supabaseAdmin

@@ -90,11 +90,14 @@ export default function StaffCalendar() {
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
-  // 日付ごとのシフトを取得
   const getShiftsForDate = (day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return shifts.filter(s => s.Date === dateStr);
+    // 自分のシフトだけをフィルタリング
+    return shifts.filter(s => s.Date === dateStr && s.UserID === currentUser?.UserID);
   };
+
+  const [selectedShiftDate, setSelectedShiftDate] = useState<string | null>(null);
+  const selectedShifts = selectedShiftDate ? getShiftsForDate(parseInt(selectedShiftDate.split('-')[2])) : [];
 
   return (
     <div className="container" style={{ padding: '1.5rem 1rem' }}>
@@ -121,8 +124,22 @@ export default function StaffCalendar() {
           
           {days.map((day, index) => {
             const dayShifts = day ? getShiftsForDate(day) : [];
+            const dateStr = day ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
             return (
-              <div key={index} style={{ backgroundColor: 'var(--surface-color)', minHeight: '100px', padding: '0.5rem' }}>
+              <div 
+                key={index} 
+                onClick={() => {
+                  if (dayShifts.length > 0 && dateStr) {
+                    setSelectedShiftDate(dateStr);
+                  }
+                }}
+                style={{ 
+                  backgroundColor: 'var(--surface-color)', 
+                  minHeight: '100px', 
+                  padding: '0.5rem',
+                  cursor: dayShifts.length > 0 ? 'pointer' : 'default'
+                }}
+              >
                 {day && (
                   <>
                     <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem', color: (index % 7 === 0) ? 'red' : (index % 7 === 6) ? 'blue' : 'inherit' }}>
@@ -130,20 +147,32 @@ export default function StaffCalendar() {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       {dayShifts.map(shift => {
-                        // 他人のシフトで、承認済/調整済以外は非表示
-                        if (!shift.isMine && shift.Status !== '承認済' && shift.Status !== '調整済') return null;
-                        
-                        // ステータスごとの色分け
+                        // シンプルなバッジ表示（確定・申請中）
+                        const isConfirmed = shift.Status === '承認済' || shift.Status === '調整済';
+                        const isPending = shift.Status === '申請中';
+                        if (!isConfirmed && !isPending) return null; // 却下は表示しないか、シンプルにする
+
                         let bgColor = '#f0f0f0';
                         let color = '#333';
-                        if (shift.Status === '承認済') { bgColor = '#e6f4ea'; color = '#137333'; }
-                        if (shift.Status === '申請中') { bgColor = '#fef7e0'; color = '#b06000'; }
-                        if (shift.Status === '却下') { bgColor = '#fce8e6'; color = '#c5221f'; }
-                        if (shift.Status === '調整済') { bgColor = '#e8f0fe'; color = '#1967d2'; }
+                        let label = shift.Status;
+
+                        if (isConfirmed) { 
+                          bgColor = '#e6f4ea'; color = '#137333'; label = '確定'; 
+                        } else if (isPending) { 
+                          bgColor = '#fef7e0'; color = '#b06000'; label = '申請中'; 
+                        }
 
                         return (
-                          <div key={shift.ShiftID} style={{ fontSize: '0.7rem', padding: '4px', borderRadius: '4px', backgroundColor: bgColor, color: color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {shift.isMine ? '自分' : shift.UserName} ({shift.StartTime.slice(0,5)}-{shift.EndTime.slice(0,5)})
+                          <div key={shift.ShiftID} style={{ 
+                            fontSize: '0.8rem', 
+                            padding: '4px', 
+                            borderRadius: '4px', 
+                            backgroundColor: bgColor, 
+                            color: color, 
+                            textAlign: 'center',
+                            fontWeight: 'bold'
+                          }}>
+                            {label}
                           </div>
                         );
                       })}
@@ -155,6 +184,65 @@ export default function StaffCalendar() {
           })}
         </div>
       </div>
+
+      {/* モーダル表示 */}
+      {selectedShiftDate && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '12px', width: '100%', maxWidth: '400px', overflow: 'hidden' }}>
+            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{selectedShiftDate.replace(/-/g, '/')} のシフト</h2>
+              <button onClick={() => setSelectedShiftDate(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#888' }}>×</button>
+            </div>
+            
+            <div style={{ padding: '1.5rem' }}>
+              {selectedShifts.map(shift => {
+                const isAdjusted = shift.Status === '調整済';
+                return (
+                  <div key={shift.ShiftID} style={{ marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <span style={{ 
+                        padding: '0.2rem 0.6rem', 
+                        borderRadius: '4px', 
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        backgroundColor: (shift.Status === '承認済' || shift.Status === '調整済') ? '#e6f4ea' : '#fef7e0',
+                        color: (shift.Status === '承認済' || shift.Status === '調整済') ? '#137333' : '#b06000'
+                      }}>
+                        {(shift.Status === '承認済' || shift.Status === '調整済') ? '確定' : shift.Status}
+                      </span>
+                    </div>
+                    
+                    {isAdjusted ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div>
+                          <span style={{ fontSize: '0.8rem', color: '#888' }}>自分が提出した時間</span>
+                          <div style={{ fontSize: '1.1rem', color: '#888', textDecoration: 'line-through' }}>
+                            {shift.OriginalStartTime?.slice(0, 5)} - {shift.OriginalEndTime?.slice(0, 5)}
+                          </div>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '0.8rem', color: '#1967d2', fontWeight: 'bold' }}>調整後の時間</span>
+                          <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#333' }}>
+                            {shift.StartTime.slice(0, 5)} - {shift.EndTime.slice(0, 5)}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#333' }}>
+                        {shift.StartTime.slice(0, 5)} - {shift.EndTime.slice(0, 5)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div style={{ padding: '1rem', borderTop: '1px solid #eee', textAlign: 'center' }}>
+              <button onClick={() => setSelectedShiftDate(null)} style={{ padding: '0.5rem 2rem', backgroundColor: '#f0f0f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>閉じる</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
