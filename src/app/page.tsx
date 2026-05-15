@@ -72,14 +72,6 @@ export default function LoginPage() {
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
-        
-        <div className="login-footer">
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <Link href="/register" style={{ padding: '0.75rem', border: '1px solid var(--border-color)', color: '#555', borderRadius: '8px', fontSize: '0.9rem' }}>
-              🏢 新しく店舗を登録する（初めての店長用）
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );
