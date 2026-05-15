@@ -9,7 +9,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
   // ログイン画面 (ルート) および登録画面ではナビゲーションを隠す
-  const isLoginPage = pathname === '/' || pathname === '/register';
+  const isLoginPage = pathname === '/' || pathname === '/register' || pathname === '/staff-register';
 
   return (
     <div className="app-layout">

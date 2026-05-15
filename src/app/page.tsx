@@ -74,10 +74,13 @@ export default function LoginPage() {
         </form>
         
         <div className="login-footer">
-          <p>※アカウントがない場合は店長に招待コードを発行してもらってください。</p>
-          <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-            <Link href="/register" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>
-              💡 新しく店舗を登録する（店長用）
+          <p>※初めての方は以下のいずれかから登録してください。</p>
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            <Link href="/staff-register" style={{ padding: '0.75rem', backgroundColor: '#eaf4ff', color: 'var(--primary-color)', borderRadius: '8px', fontWeight: 'bold' }}>
+              👤 スタッフとして登録する
+            </Link>
+            <Link href="/register" style={{ padding: '0.75rem', border: '1px solid var(--border-color)', color: '#555', borderRadius: '8px', fontSize: '0.9rem' }}>
+              🏢 新しく店舗を登録する（店長用）
             </Link>
           </div>
         </div>
