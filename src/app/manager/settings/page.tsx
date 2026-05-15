@@ -7,6 +7,7 @@ import { createStoreAccount, updateStoreDetailsAndAccount } from '@/app/actions/
 export default function StoreSettingsPage() {
   const [stores, setStores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   
   // 新規追加用
   const [adding, setAdding] = useState(false);
@@ -23,11 +24,34 @@ export default function StoreSettingsPage() {
 
   const fetchStores = async () => {
     setLoading(true);
-    // 登録されている全ての店舗を取得
-    const { data: storeData } = await supabase
+
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) return;
+
+    // 1. ログインユーザーの権限と所属店舗を取得
+    const { data: managerProfile } = await supabase
+      .from('Users')
+      .select('Role, StoreID')
+      .eq('UserID', authData.user.id)
+      .single();
+
+    if (!managerProfile) return;
+
+    // 「本部」や「管理者」なら全店舗を見れるようにする。通常の「店長」は自店舗のみ。
+    const superAdminCheck = managerProfile.Role === '本部' || managerProfile.Role === '管理者';
+    setIsSuperAdmin(superAdminCheck);
+
+    // 登録されている店舗を取得
+    let storesQuery = supabase
       .from('StoreSettings')
       .select('*')
       .order('StoreName', { ascending: true });
+
+    if (!superAdminCheck) {
+      storesQuery = storesQuery.eq('StoreID', managerProfile.StoreID);
+    }
+
+    const { data: storeData } = await storesQuery;
 
     if (storeData) {
       setStores(storeData);
@@ -89,31 +113,33 @@ export default function StoreSettingsPage() {
         店舗設定・管理
       </h1>
 
-      {/* 新規店舗の追加 */}
-      <div style={{ backgroundColor: '#eaf4ff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #cce4ff', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#005bb5' }}>🏢 新規店舗の登録</h2>
-        <form onSubmit={handleAddStore} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label style={{ fontSize: '0.8rem' }}>店舗名</label>
-            <input type="text" name="storeName" required placeholder="例: 渋谷店" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label style={{ fontSize: '0.8rem' }}>営業時間</label>
-            <input type="text" name="businessHours" placeholder="例: 10:00〜20:00" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label style={{ fontSize: '0.8rem' }}>ログインID</label>
-            <input type="text" name="loginId" required placeholder="shibuya" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
-            <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
-          </div>
-          <button type="submit" disabled={adding} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
-            {adding ? '登録中...' : '店舗とアカウントを追加する'}
-          </button>
-        </form>
-      </div>
+      {/* 新規店舗の追加（本部・管理者のみ） */}
+      {isSuperAdmin && (
+        <div style={{ backgroundColor: '#eaf4ff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #cce4ff', marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#005bb5' }}>🏢 新規店舗の登録</h2>
+          <form onSubmit={handleAddStore} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label style={{ fontSize: '0.8rem' }}>店舗名</label>
+              <input type="text" name="storeName" required placeholder="例: 渋谷店" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label style={{ fontSize: '0.8rem' }}>営業時間</label>
+              <input type="text" name="businessHours" placeholder="例: 10:00〜20:00" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label style={{ fontSize: '0.8rem' }}>ログインID</label>
+              <input type="text" name="loginId" required placeholder="shibuya" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
+              <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <button type="submit" disabled={adding} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+              {adding ? '登録中...' : '店舗とアカウントを追加する'}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* 登録済み店舗一覧 */}
       <div style={{ backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>

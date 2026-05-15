@@ -20,8 +20,25 @@ export default function StaffManagement() {
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) return;
 
+    // 1. ログインユーザーの権限と所属店舗を取得
+    const { data: managerProfile } = await supabase
+      .from('Users')
+      .select('Role, StoreID')
+      .eq('UserID', authData.user.id)
+      .single();
+
+    if (!managerProfile) return;
+
+    // 「本部」や「管理者」なら全店舗を見れるようにする。通常の「店長」は自店舗のみ。
+    const isSuperAdmin = managerProfile.Role === '本部' || managerProfile.Role === '管理者';
+
     // 店舗一覧を取得
-    const { data: storesData } = await supabase.from('StoreSettings').select('StoreID, StoreName');
+    let storesQuery = supabase.from('StoreSettings').select('StoreID, StoreName');
+    if (!isSuperAdmin) {
+      storesQuery = storesQuery.eq('StoreID', managerProfile.StoreID);
+    }
+    const { data: storesData } = await storesQuery;
+    
     if (storesData) {
       setStores(storesData);
       if (storesData.length > 0) {
@@ -29,12 +46,18 @@ export default function StaffManagement() {
       }
     }
 
-    // 全てのスタッフを取得
-    const { data: staffData } = await supabase
+    // スタッフを取得
+    let staffQuery = supabase
       .from('Users')
       .select('*, StoreSettings(StoreName)')
       .eq('Role', 'スタッフ')
       .order('RegistrationDate', { ascending: false });
+      
+    if (!isSuperAdmin) {
+      staffQuery = staffQuery.eq('StoreID', managerProfile.StoreID);
+    }
+    
+    const { data: staffData } = await staffQuery;
 
     if (staffData) {
       setStaffList(staffData);
