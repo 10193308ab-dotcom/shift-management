@@ -113,3 +113,31 @@ export async function updateStoreDetailsAndAccount(formData: FormData) {
 
   return { success: true };
 }
+
+export async function deleteStore(storeId: string) {
+  if (!storeId) return { error: '店舗IDが指定されていません' };
+
+  // 1. その店舗に紐づくすべてのユーザーのAuthアカウントを削除する
+  const { data: users } = await supabaseAdmin
+    .from('Users')
+    .select('UserID')
+    .eq('StoreID', storeId);
+
+  if (users && users.length > 0) {
+    for (const user of users) {
+      await supabaseAdmin.auth.admin.deleteUser(user.UserID);
+    }
+  }
+
+  // 2. 店舗を削除（関連するシフトや要求事項、UsersレコードもDBのCASCADE制約により削除されます）
+  const { error } = await supabaseAdmin
+    .from('StoreSettings')
+    .delete()
+    .eq('StoreID', storeId);
+
+  if (error) {
+    return { error: '店舗の削除に失敗しました: ' + error.message };
+  }
+
+  return { success: true };
+}

@@ -1,28 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
+
+import { Calendar, LogOut } from 'lucide-react';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
 
-  const navItems = [
-    { name: 'カレンダー', path: '/staff', icon: '📅' },
-    { name: 'TODO', path: '/staff/todo', icon: '✅' },
-    { name: '設定', path: '/staff/profile', icon: '👤' },
-  ];
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
 
   return (
     <nav className="bottom-nav">
-      {navItems.map((item) => {
-        const isActive = pathname === item.path || (item.path !== '/staff' && pathname.startsWith(item.path));
-        return (
-          <Link key={item.path} href={item.path} className={`nav-item ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.name}</span>
-          </Link>
-        );
-      })}
+      <Link href="/staff" className={`nav-item ${pathname === '/staff' ? 'active' : ''}`}>
+        <span className="nav-icon" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Calendar size={20} />
+        </span>
+        <span className="nav-label">カレンダー</span>
+      </Link>
+      
+      <button onClick={handleLogout} className="nav-item" style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <span className="nav-icon" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <LogOut size={20} />
+        </span>
+        <span className="nav-label">ログアウト</span>
+      </button>
     </nav>
   );
 }

@@ -31,15 +31,23 @@ export default function LoginPage() {
     }
 
     // ログイン成功後、データベースから「店長」か「スタッフ」かを確認する
-    // Usersテーブルから権限（Role）を取得
+    // Usersテーブルから権限（Role）とステータス（Status）を取得
     const { data: userData, error: userError } = await supabase
       .from('Users')
-      .select('Role')
+      .select('Role, Status')
       .eq('UserID', data.user.id)
       .maybeSingle();
 
     if (userError || !userData) {
       alert('ログインに成功しましたが、ユーザー情報が見つかりません。（Usersテーブルから削除されている可能性があります）');
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    if (userData.Status === '無効') {
+      alert('このアカウントは現在無効化されています。管理者にお問い合わせください。');
+      await supabase.auth.signOut();
       setLoading(false);
       return;
     }

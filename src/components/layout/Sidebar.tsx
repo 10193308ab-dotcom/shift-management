@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useEffect, useState } from 'react';
 
+import { LayoutDashboard, CalendarCheck, Users, ClipboardList, Settings, LogOut, Clock } from 'lucide-react';
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -34,14 +36,15 @@ export default function Sidebar() {
   }, []);
 
   const navItems = [
-    { name: 'ダッシュボード', path: '/manager', icon: '📊' },
-    { name: 'シフト管理', path: '/manager/shifts', icon: '✅' },
-    { name: 'スタッフ管理', path: '/manager/staff', icon: '👥' },
-    { name: 'TODO管理', path: '/manager/todo', icon: '📋' },
+    { name: 'ダッシュボード', path: '/manager', icon: <LayoutDashboard size={20} /> },
+    { name: 'シフト管理', path: '/manager/shifts', icon: <CalendarCheck size={20} /> },
+    { name: 'シフト枠設定', path: '/manager/requirements', icon: <Clock size={20} /> },
+    { name: 'スタッフ管理', path: '/manager/staff', icon: <Users size={20} /> },
+    { name: 'TODO管理', path: '/manager/todo', icon: <ClipboardList size={20} /> },
   ];
 
   if (isHeadquarters) {
-    navItems.push({ name: '店舗設定', path: '/manager/settings', icon: '⚙️' });
+    navItems.push({ name: '店舗設定', path: '/manager/settings', icon: <Settings size={20} /> });
   }
 
   const handleLogout = async () => {
@@ -52,7 +55,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div className="sidebar-header">
-        <h2>シフト管理</h2>
+        <h2>店舗管理</h2>
         <span className="badge" style={{ fontSize: '0.8rem', padding: '4px 12px', borderRadius: '20px', backgroundColor: 'var(--primary-color)', color: '#333333', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 'bold' }}>
           {storeName}
         </span>
@@ -62,15 +65,15 @@ export default function Sidebar() {
           const isActive = pathname === item.path || (item.path !== '/manager' && pathname.startsWith(item.path));
           return (
             <Link key={item.path} href={item.path} className={`sidebar-item ${isActive ? 'active' : ''}`}>
-              <span className="sidebar-icon">{item.icon}</span>
+              <span className="sidebar-icon" style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
               {item.name}
             </Link>
           );
         })}
       </nav>
       <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-        <button onClick={handleLogout} style={{ width: '100%', padding: '0.8rem', background: 'none', border: '1px solid #ff3b30', color: '#ff3b30', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fff0f0'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-          🚪 ログアウト
+        <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '0.8rem', background: 'none', border: '1px solid #ff3b30', color: '#ff3b30', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fff0f0'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+          <LogOut size={18} /> ログアウト
         </button>
       </div>
     </aside>
