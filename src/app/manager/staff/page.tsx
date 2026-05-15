@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { createStaffAccount } from '@/app/actions/staff';
 
 export default function StaffManagement() {
   const [staffList, setStaffList] = useState<any[]>([]);
-  const [inviteCode, setInviteCode] = useState('');
+  const [storeId, setStoreId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -17,18 +19,15 @@ export default function StaffManagement() {
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) return;
 
-    // 1. 店長のプロフィールと店舗情報を取得
     const { data: managerProfile } = await supabase
       .from('Users')
-      .select('StoreID, StoreSettings(InviteCode)')
+      .select('StoreID')
       .eq('UserID', authData.user.id)
       .single();
 
     if (managerProfile) {
-      // @ts-ignore
-      setInviteCode(managerProfile.StoreSettings?.InviteCode || '未設定');
+      setStoreId(managerProfile.StoreID);
 
-      // 2. この店舗のスタッフ一覧を取得
       const { data: staffData } = await supabase
         .from('Users')
         .select('*')
@@ -43,6 +42,25 @@ export default function StaffManagement() {
     setLoading(false);
   };
 
+  const handleCreateStaff = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitLoading(true);
+    const formData = new FormData(e.currentTarget);
+    formData.append('storeId', storeId);
+
+    const result = await createStaffAccount(formData);
+
+    if (result.error) {
+      alert(result.error);
+    } else {
+      alert('スタッフの登録が完了しました！作成したIDとパスワードを本人にお伝えください。');
+      // @ts-ignore
+      e.target.reset();
+      fetchData(); // リストを再取得
+    }
+    setSubmitLoading(false);
+  };
+
   return (
     <div style={{ padding: '1rem' }}>
       <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--primary-color)' }}>
@@ -50,15 +68,28 @@ export default function StaffManagement() {
       </h1>
 
       <div style={{ backgroundColor: '#eaf4ff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #cce4ff', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#005bb5' }}>🚀 新規スタッフの招待</h2>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#005bb5' }}>👤 新規スタッフの登録</h2>
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
-          新しいスタッフを登録するには、以下の「招待コード」をスタッフに伝えて、ログイン画面から登録してもらってください。
+          ここで作成した「メールアドレス」と「パスワード」を本人に伝え、ログイン画面のURLを共有してください。
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ backgroundColor: '#fff', padding: '0.5rem 1rem', fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '2px', border: '2px dashed var(--primary-color)', borderRadius: '8px' }}>
-            {inviteCode}
+        
+        <form onSubmit={handleCreateStaff} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>スタッフの名前</label>
+            <input type="text" name="name" required placeholder="山田 太郎" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
-        </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>ログインID（メールアドレス形式）</label>
+            <input type="email" name="email" required placeholder="yamada@example.com" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
+            <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <button type="submit" disabled={submitLoading} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+            {submitLoading ? '登録中...' : 'スタッフを登録する'}
+          </button>
+        </form>
       </div>
 
       <div style={{ backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
