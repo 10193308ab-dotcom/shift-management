@@ -31,18 +31,23 @@ export default function LoginPage() {
     }
 
     // ログイン成功後、データベースから「店長」か「スタッフ」かを確認する
-    const { data: userData } = await supabase
+    // Usersテーブルから権限（Role）を取得
+    const { data: userData, error: userError } = await supabase
       .from('Users')
       .select('Role')
       .eq('UserID', data.user.id)
-      .single();
+      .maybeSingle();
 
-    if (userData) {
-      if (userData.Role === 'スタッフ') {
-        router.push('/staff');
-      } else {
-        router.push('/manager');
-      }
+    if (userError || !userData) {
+      alert('ログインに成功しましたが、ユーザー情報が見つかりません。（Usersテーブルから削除されている可能性があります）');
+      setLoading(false);
+      return;
+    }
+
+    if (userData.Role === 'スタッフ') {
+      router.push('/staff');
+    } else {
+      router.push('/manager');
     }
   };
 
