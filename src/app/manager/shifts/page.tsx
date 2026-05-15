@@ -169,7 +169,7 @@ export default function ManagerShiftsPage() {
     const dayOfWeek = dateObj.getDay();
     
     const dayRequirements = requirements.filter(req => req.DayOfWeek === dayOfWeek);
-    if (dayRequirements.length === 0) return { ok: true, shortages: [] };
+    if (dayRequirements.length === 0) return { ok: true, shortages: [], overages: [] };
     
     // その日の承認済み/調整済みのシフトを取得 (全体)
     const allDayShifts = shifts.filter(s => s.Date === dateStr && (s.Status === '承認済' || s.Status === '調整済'));
