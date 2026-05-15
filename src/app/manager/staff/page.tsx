@@ -6,7 +6,8 @@ import { createStaffAccount } from '@/app/actions/staff';
 
 export default function StaffManagement() {
   const [staffList, setStaffList] = useState<any[]>([]);
-  const [storeId, setStoreId] = useState('');
+  const [stores, setStores] = useState<any[]>([]);
+  const [selectedStoreId, setSelectedStoreId] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -19,25 +20,24 @@ export default function StaffManagement() {
     const { data: authData } = await supabase.auth.getUser();
     if (!authData.user) return;
 
-    const { data: managerProfile } = await supabase
-      .from('Users')
-      .select('StoreID')
-      .eq('UserID', authData.user.id)
-      .single();
-
-    if (managerProfile) {
-      setStoreId(managerProfile.StoreID);
-
-      const { data: staffData } = await supabase
-        .from('Users')
-        .select('*')
-        .eq('StoreID', managerProfile.StoreID)
-        .eq('Role', 'スタッフ')
-        .order('RegistrationDate', { ascending: false });
-
-      if (staffData) {
-        setStaffList(staffData);
+    // 店舗一覧を取得
+    const { data: storesData } = await supabase.from('StoreSettings').select('StoreID, StoreName');
+    if (storesData) {
+      setStores(storesData);
+      if (storesData.length > 0) {
+        setSelectedStoreId(storesData[0].StoreID);
       }
+    }
+
+    // 全てのスタッフを取得
+    const { data: staffData } = await supabase
+      .from('Users')
+      .select('*, StoreSettings(StoreName)')
+      .eq('Role', 'スタッフ')
+      .order('RegistrationDate', { ascending: false });
+
+    if (staffData) {
+      setStaffList(staffData);
     }
     setLoading(false);
   };
@@ -46,7 +46,7 @@ export default function StaffManagement() {
     e.preventDefault();
     setSubmitLoading(true);
     const formData = new FormData(e.currentTarget);
-    formData.append('storeId', storeId);
+    formData.append('storeId', selectedStoreId);
 
     const result = await createStaffAccount(formData);
 
@@ -75,6 +75,19 @@ export default function StaffManagement() {
         
         <form onSubmit={handleCreateStaff} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>所属店舗</label>
+            <select 
+              value={selectedStoreId} 
+              onChange={e => setSelectedStoreId(e.target.value)}
+              required 
+              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+              {stores.map(store => (
+                <option key={store.StoreID} value={store.StoreID}>{store.StoreName}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>スタッフの名前</label>
             <input type="text" name="name" required placeholder="山田 太郎" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
@@ -86,7 +99,7 @@ export default function StaffManagement() {
             <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
             <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
-          <button type="submit" disabled={submitLoading} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+          <button type="submit" disabled={submitLoading || stores.length === 0} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
             {submitLoading ? '登録中...' : 'スタッフを登録する'}
           </button>
         </form>
@@ -105,6 +118,7 @@ export default function StaffManagement() {
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>名前</th>
+                  <th style={{ padding: '0.75rem', color: '#8e8e93' }}>所属店舗</th>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>ステータス</th>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>登録日</th>
                 </tr>
@@ -113,6 +127,7 @@ export default function StaffManagement() {
                 {staffList.map((staff) => (
                   <tr key={staff.UserID} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '0.75rem', fontWeight: 'bold' }}>{staff.Name}</td>
+                    <td style={{ padding: '0.75rem' }}>{staff.StoreSettings?.StoreName || '未所属'}</td>
                     <td style={{ padding: '0.75rem' }}>
                       <span style={{ 
                         padding: '0.2rem 0.5rem', 
