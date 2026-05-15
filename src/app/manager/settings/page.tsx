@@ -167,7 +167,12 @@ export default function StoreSettingsPage() {
                     </div>
                     
                     <div style={{ padding: '1rem', backgroundColor: '#fff0f0', borderRadius: '8px', border: '1px solid #ffcccb' }}>
-                      <h4 style={{ margin: '0 0 1rem 0', color: '#c5221f' }}>🔑 ログイン情報の変更 (変更する場合のみ入力)</h4>
+                      <h4 style={{ margin: '0 0 1rem 0', color: '#c5221f' }}>🔑 ログイン情報の変更</h4>
+                      <p style={{ fontSize: '0.8rem', color: '#555', marginBottom: '1rem' }}>
+                        ※変更しない場合は空欄のままにしてください。<br/>
+                        現在のログインID: <strong style={{ color: '#000' }}>{store.LoginId || '未設定'}</strong><br/>
+                        現在のパスワード: <strong style={{ color: '#000' }}>{store.LoginPassword || '未設定'}</strong>
+                      </p>
                       <div style={{ marginBottom: '1rem' }}>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#c5221f' }}>新しいログインID</label>
                         <input type="text" name="loginId" placeholder="変更しない場合は空欄" style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem', borderRadius: '4px', border: '1px solid #ccc' }} />

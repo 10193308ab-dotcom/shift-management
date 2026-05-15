@@ -37,11 +37,12 @@ export default function LoginPage() {
       .eq('UserID', data.user.id)
       .single();
 
-    // ロールに応じて画面を出し分ける
-    if (userData?.Role === '店長') {
-      router.push('/manager');
-    } else {
-      router.push('/staff'); 
+    if (userData) {
+      if (userData.Role === 'スタッフ') {
+        router.push('/staff');
+      } else {
+        router.push('/manager');
+      }
     }
   };
 

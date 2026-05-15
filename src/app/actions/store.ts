@@ -31,6 +31,8 @@ export async function createStoreAccount(formData: FormData) {
     .insert([{
       StoreName: storeName,
       BusinessHours: businessHours,
+      LoginId: loginId,
+      LoginPassword: password,
       InviteCode: Math.random().toString(36).slice(-8)
     }])
     .select('StoreID')
@@ -48,7 +50,7 @@ export async function createStoreAccount(formData: FormData) {
       UserID: authData.user.id,
       StoreID: storeData.StoreID,
       Name: storeName + ' 責任者',
-      Role: '店長' // ロール自体は権限管理のため「店長」のまま
+      Role: '店舗' // 店舗アカウントとして登録
     }]);
 
   if (userError) {
@@ -71,10 +73,14 @@ export async function updateStoreDetailsAndAccount(formData: FormData) {
     return { error: '必須項目が不足しています' };
   }
 
-  // 1. 店舗情報の更新
+  // 1. 店舗情報の更新 (平文のID/Passも一緒に保存する)
+  const updatePayload: any = { StoreName: storeName, BusinessHours: businessHours };
+  if (loginId) updatePayload.LoginId = loginId;
+  if (password) updatePayload.LoginPassword = password;
+
   const { error: storeError } = await supabaseAdmin
     .from('StoreSettings')
-    .update({ StoreName: storeName, BusinessHours: businessHours })
+    .update(updatePayload)
     .eq('StoreID', storeId);
 
   if (storeError) {
@@ -87,7 +93,7 @@ export async function updateStoreDetailsAndAccount(formData: FormData) {
       .from('Users')
       .select('UserID')
       .eq('StoreID', storeId)
-      .eq('Role', '店長')
+      .eq('Role', '店舗')
       .single();
 
     if (userData) {

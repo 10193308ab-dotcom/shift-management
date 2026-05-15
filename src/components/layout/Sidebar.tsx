@@ -9,6 +9,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [storeName, setStoreName] = useState('店舗用');
+  const [isHeadquarters, setIsHeadquarters] = useState(false);
 
   useEffect(() => {
     const fetchStoreName = async () => {
@@ -24,6 +25,10 @@ export default function Sidebar() {
       if (userData?.StoreSettings?.StoreName) {
         setStoreName(userData.StoreSettings.StoreName);
       }
+      
+      if (userData?.Role === '本部' || userData?.Role === '管理者') {
+        setIsHeadquarters(true);
+      }
     };
     fetchStoreName();
   }, []);
@@ -33,8 +38,11 @@ export default function Sidebar() {
     { name: 'シフト管理', path: '/manager/shifts', icon: '✅' },
     { name: 'スタッフ管理', path: '/manager/staff', icon: '👥' },
     { name: 'TODO管理', path: '/manager/todo', icon: '📋' },
-    { name: '店舗設定', path: '/manager/settings', icon: '⚙️' },
   ];
+
+  if (isHeadquarters) {
+    navItems.push({ name: '店舗設定', path: '/manager/settings', icon: '⚙️' });
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
