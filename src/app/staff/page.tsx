@@ -100,8 +100,8 @@ export default function StaffCalendar() {
   const selectedShifts = selectedShiftDate ? getShiftsForDate(parseInt(selectedShiftDate.split('-')[2])) : [];
 
   return (
-    <div className="container" style={{ padding: '1.5rem 1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+    <div style={{ margin: '0 -0.5rem', padding: '0.5rem 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', padding: '0 0.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', color: 'var(--primary-color)' }}>シフトカレンダー</h1>
         <Link href="/staff/apply" className="btn-primary" style={{ width: 'auto', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
           ＋ シフト申請
