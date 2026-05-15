@@ -5,9 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useEffect, useState } from 'react';
 
-import { LayoutDashboard, CalendarCheck, Users, ClipboardList, Settings, LogOut, Clock } from 'lucide-react';
+import { LayoutDashboard, CalendarCheck, Users, ClipboardList, Settings, LogOut, Clock, X } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen?: boolean, onClose?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const [storeName, setStoreName] = useState('店舗用');
@@ -53,9 +53,17 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <div className="sidebar-header">
+    <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`} style={{ flexDirection: 'column', height: '100vh' }}>
+      <div className="sidebar-header" style={{ position: 'relative' }}>
         <h2>店舗管理</h2>
+        {/* Mobile close button */}
+        <button 
+          onClick={onClose} 
+          className="mobile-close-btn"
+          style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', display: 'none' }}
+        >
+          <X size={24} />
+        </button>
         <span className="badge" style={{ fontSize: '0.8rem', padding: '4px 12px', borderRadius: '20px', backgroundColor: 'var(--primary-color)', color: '#333333', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 'bold' }}>
           {storeName}
         </span>
@@ -64,7 +72,7 @@ export default function Sidebar() {
         {navItems.map((item) => {
           const isActive = pathname === item.path || (item.path !== '/manager' && pathname.startsWith(item.path));
           return (
-            <Link key={item.path} href={item.path} className={`sidebar-item ${isActive ? 'active' : ''}`}>
+            <Link key={item.path} href={item.path} className={`sidebar-item ${isActive ? 'active' : ''}`} onClick={onClose}>
               <span className="sidebar-icon" style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
               {item.name}
             </Link>
