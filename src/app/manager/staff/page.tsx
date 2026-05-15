@@ -92,8 +92,8 @@ export default function StaffManagement() {
             <input type="text" name="name" required placeholder="山田 太郎" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label style={{ fontSize: '0.8rem' }}>ログインID（メールアドレス形式）</label>
-            <input type="email" name="email" required placeholder="yamada@example.com" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <label style={{ fontSize: '0.8rem' }}>ログインID</label>
+            <input type="text" name="loginId" required placeholder="yamada123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>

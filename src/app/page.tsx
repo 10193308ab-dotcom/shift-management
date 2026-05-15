@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -14,9 +14,15 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
+    // IDがメールアドレス形式でない場合は、ダミーのドメインを付与する
+    const loginEmail = loginId.includes('@') ? loginId : `${loginId}@shift.local`;
+
     // Supabaseの認証機能でログイン
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email: loginEmail, 
+      password 
+    });
     
     if (error) {
       alert('ログインに失敗しました: ' + error.message);
@@ -49,12 +55,12 @@ export default function LoginPage() {
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label>メールアドレス</label>
+            <label>ログインID</label>
             <input 
-              type="email" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              placeholder="example@example.com"
+              type="text" 
+              value={loginId} 
+              onChange={e => setLoginId(e.target.value)} 
+              placeholder="ログインID または メールアドレス"
               required 
             />
           </div>

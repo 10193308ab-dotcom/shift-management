@@ -25,7 +25,7 @@ export default function Sidebar() {
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div className="sidebar-header">
         <h2>シフト管理</h2>
-        <span className="badge">店長用</span>
+        <span className="badge">店舗用</span>
       </div>
       <nav className="sidebar-nav" style={{ flexGrow: 1 }}>
         {navItems.map((item) => {

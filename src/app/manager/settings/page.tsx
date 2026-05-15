@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { createStoreAccount } from '@/app/actions/store';
 
 export default function StoreSettingsPage() {
   const [stores, setStores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // 新規追加用
-  const [newStoreName, setNewStoreName] = useState('');
-  const [newBusinessHours, setNewBusinessHours] = useState('');
   const [adding, setAdding] = useState(false);
 
   // 編集用
@@ -36,25 +35,19 @@ export default function StoreSettingsPage() {
     setLoading(false);
   };
 
-  const handleAddStore = async (e: React.FormEvent) => {
+  const handleAddStore = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newStoreName) return;
     setAdding(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const result = await createStoreAccount(formData);
 
-    const { error } = await supabase
-      .from('StoreSettings')
-      .insert([{
-        StoreName: newStoreName,
-        BusinessHours: newBusinessHours,
-        InviteCode: Math.random().toString(36).slice(-8)
-      }]);
-
-    if (error) {
-      alert('追加エラー: ' + error.message);
+    if (result.error) {
+      alert('追加エラー: ' + result.error);
     } else {
-      setNewStoreName('');
-      setNewBusinessHours('');
-      alert('新しい店舗を登録しました！');
+      alert('新しい店舗とログイン用アカウントを登録しました！');
+      // @ts-ignore
+      e.target.reset();
       fetchStores();
     }
     setAdding(false);
@@ -102,30 +95,25 @@ export default function StoreSettingsPage() {
       {/* 新規店舗の追加 */}
       <div style={{ backgroundColor: '#eaf4ff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #cce4ff', marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: '#005bb5' }}>🏢 新規店舗の登録</h2>
-        <form onSubmit={handleAddStore} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem' }}>店舗名</label>
-            <input 
-              type="text" 
-              value={newStoreName} 
-              onChange={e => setNewStoreName(e.target.value)} 
-              placeholder="例: 渋谷店" 
-              required 
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} 
-            />
+        <form onSubmit={handleAddStore} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>店舗名</label>
+            <input type="text" name="storeName" required placeholder="例: 渋谷店" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
-          <div style={{ flex: 2, minWidth: '250px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.3rem' }}>営業時間</label>
-            <input 
-              type="text" 
-              value={newBusinessHours} 
-              onChange={e => setNewBusinessHours(e.target.value)} 
-              placeholder="例: 10:00〜20:00" 
-              style={{ width: '100%', padding: '0.6rem', borderRadius: '4px', border: '1px solid #ccc' }} 
-            />
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>営業時間</label>
+            <input type="text" name="businessHours" placeholder="例: 10:00〜20:00" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
           </div>
-          <button type="submit" disabled={adding} style={{ padding: '0.6rem 1.2rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-            {adding ? '登録中...' : '追加する'}
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>ログインID</label>
+            <input type="text" name="loginId" required placeholder="shibuya" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
+            <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+          </div>
+          <button type="submit" disabled={adding} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+            {adding ? '登録中...' : '店舗とアカウントを追加する'}
           </button>
         </form>
       </div>
