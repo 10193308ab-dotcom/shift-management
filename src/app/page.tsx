@@ -24,8 +24,19 @@ export default function LoginPage() {
       return;
     }
 
-    // ログイン成功時の処理（とりあえずスタッフ画面へ遷移）
-    router.push('/staff'); 
+    // ログイン成功後、データベースから「店長」か「スタッフ」かを確認する
+    const { data: userData } = await supabase
+      .from('Users')
+      .select('Role')
+      .eq('UserID', data.user.id)
+      .single();
+
+    // ロールに応じて画面を出し分ける
+    if (userData?.Role === '店長') {
+      router.push('/manager');
+    } else {
+      router.push('/staff'); 
+    }
   };
 
   return (
