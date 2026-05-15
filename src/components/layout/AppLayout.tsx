@@ -8,8 +8,8 @@ import { usePathname } from 'next/navigation';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  // ログイン画面 (ルート) ではナビゲーションを隠す
-  const isLoginPage = pathname === '/';
+  // ログイン画面 (ルート) および登録画面ではナビゲーションを隠す
+  const isLoginPage = pathname === '/' || pathname === '/register';
 
   return (
     <div className="app-layout">
