@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import { createHeadquartersAccount } from '@/app/actions/registerAdmin';
+
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,55 +15,23 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     
-    // 1. Supabase Authでユーザー作成
-    const { data: authData, error: authError } = await supabase.auth.signUp({ 
-      email, 
-      password 
-    });
+    const formData = new FormData(e.currentTarget);
+    const result = await createHeadquartersAccount(formData);
+
+    if (result.error) {
+      alert(result.error);
+      setLoading(false);
+      return;
+    }
+
+    alert('本部アカウントの登録が完了しました！');
     
-    if (authError || !authData.user) {
-      alert('登録エラー(Auth): ' + (authError?.message || '不明なエラー'));
-      setLoading(false);
-      return;
-    }
-
-    const userId = authData.user.id;
-
-    // 2. 店舗(Store)の作成
-    const { data: storeData, error: storeError } = await supabase
-      .from('StoreSettings')
-      .insert([{ StoreName: storeName, InviteCode: Math.random().toString(36).slice(-8) }])
-      .select('StoreID')
-      .single();
-
-    if (storeError) {
-      alert('店舗作成エラー: ' + storeError.message);
-      setLoading(false);
-      return;
-    }
-
-    // 3. ユーザープロフィールの作成（本部として登録）
-    const { error: userError } = await supabase
-      .from('Users')
-      .insert([{ 
-        UserID: userId, 
-        StoreID: storeData.StoreID, 
-        Name: name, 
-        Role: '本部' 
-      }]);
-
-    if (userError) {
-      alert('プロフィール作成エラー: ' + userError.message);
-      setLoading(false);
-      return;
-    }
-
-    alert('店舗と店長アカウントの登録が完了しました！');
-    router.push('/manager'); 
+    // サインアップ後はログイン画面に戻る（AdminAPIで作成した場合は自動ログインされないため）
+    router.push('/'); 
   };
 
   return (
