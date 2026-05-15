@@ -53,7 +53,7 @@ export default function Sidebar() {
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <div className="sidebar-header">
         <h2>シフト管理</h2>
-        <span className="badge" style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '4px', backgroundColor: 'var(--primary-color)', color: '#fff', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span className="badge" style={{ fontSize: '0.8rem', padding: '4px 12px', borderRadius: '20px', backgroundColor: 'var(--primary-color)', color: '#333333', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 'bold' }}>
           {storeName}
         </span>
       </div>
@@ -69,7 +69,7 @@ export default function Sidebar() {
         })}
       </nav>
       <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-        <button onClick={handleLogout} style={{ width: '100%', padding: '0.75rem', background: 'none', border: '1px solid #ff3b30', color: '#ff3b30', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <button onClick={handleLogout} style={{ width: '100%', padding: '0.8rem', background: 'none', border: '1px solid #ff3b30', color: '#ff3b30', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fff0f0'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           🚪 ログアウト
         </button>
       </div>

@@ -90,8 +90,8 @@ export default function StaffManagement() {
         スタッフ管理
       </h1>
 
-      <div style={{ backgroundColor: '#eaf4ff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #cce4ff', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#005bb5' }}>👤 新規スタッフの登録</h2>
+      <div style={{ backgroundColor: '#FFFDF0', padding: '1.5rem', borderRadius: '16px', border: '1px solid #FFE066', marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#B38F00' }}>👤 新規スタッフの登録</h2>
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
           ここで作成した「メールアドレス」と「パスワード」を本人に伝え、ログイン画面のURLを共有してください。
         </p>
@@ -103,7 +103,7 @@ export default function StaffManagement() {
               value={selectedStoreId} 
               onChange={e => setSelectedStoreId(e.target.value)}
               required 
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: '#fff' }}
             >
               {stores.map(store => (
                 <option key={store.StoreID} value={store.StoreID}>{store.StoreName}</option>
@@ -112,24 +112,24 @@ export default function StaffManagement() {
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>スタッフの名前</label>
-            <input type="text" name="name" required placeholder="山田 太郎" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <input type="text" name="name" required placeholder="山田 太郎" style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: '#fff' }} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>ログインID</label>
-            <input type="text" name="loginId" required placeholder="yamada123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <input type="text" name="loginId" required placeholder="yamada123" style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: '#fff' }} />
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: '0.8rem' }}>初期パスワード（6文字以上）</label>
-            <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+            <input type="text" name="password" required minLength={6} placeholder="password123" style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: '#fff' }} />
           </div>
-          <button type="submit" disabled={submitLoading || stores.length === 0} style={{ padding: '0.75rem', backgroundColor: '#005bb5', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem' }}>
+          <button type="submit" disabled={submitLoading || stores.length === 0} style={{ padding: '0.8rem', backgroundColor: 'var(--primary-color)', color: '#333', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem', boxShadow: '0 2px 8px rgba(255, 204, 0, 0.3)' }}>
             {submitLoading ? '登録中...' : 'スタッフを登録する'}
           </button>
         </form>
       </div>
 
-      <div style={{ backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>登録済みスタッフ一覧 ({staffList.length}名)</h2>
+      <div style={{ backgroundColor: 'var(--surface-color)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-color)' }}>登録済みスタッフ一覧 ({staffList.length}名)</h2>
         
         {loading ? (
           <p>読み込み中...</p>
@@ -157,11 +157,13 @@ export default function StaffManagement() {
                     <td style={{ padding: '0.75rem' }}>{staff.StoreSettings?.StoreName || '未所属'}</td>
                     <td style={{ padding: '0.75rem' }}>
                       <span style={{ 
-                        padding: '0.2rem 0.5rem', 
-                        borderRadius: '4px', 
+                        padding: '4px 12px', 
+                        borderRadius: '20px', 
                         fontSize: '0.8rem',
-                        backgroundColor: staff.Status === '有効' ? '#e6f4ea' : '#fce8e6',
-                        color: staff.Status === '有効' ? '#137333' : '#c5221f'
+                        fontWeight: 'bold',
+                        backgroundColor: staff.Status === '有効' ? '#FFF5CC' : '#fce8e6',
+                        color: staff.Status === '有効' ? '#B38F00' : '#c5221f',
+                        border: `1px solid ${staff.Status === '有効' ? '#FFE066' : '#f5c6cb'}`
                       }}>
                         {staff.Status}
                       </span>

@@ -156,14 +156,14 @@ export default function ManagerShiftsPage() {
                 
                 {/* 申請中バッジ */}
                 {pendingCount > 0 && (
-                  <div style={{ fontSize: '0.7rem', padding: '4px', borderRadius: '4px', backgroundColor: '#fef7e0', color: '#b06000', marginBottom: '4px', textAlign: 'center', fontWeight: 'bold' }}>
+                  <div style={{ fontSize: '0.75rem', padding: '4px', borderRadius: '20px', backgroundColor: '#F5F5F5', color: '#888888', marginBottom: '4px', textAlign: 'center', fontWeight: 'bold' }}>
                     申請中 {pendingCount}件
                   </div>
                 )}
                 {/* 承認済バッジ */}
                 {approvedCount > 0 && (
-                  <div style={{ fontSize: '0.7rem', padding: '4px', borderRadius: '4px', backgroundColor: '#e6f4ea', color: '#137333', textAlign: 'center' }}>
-                    承認済 {approvedCount}件
+                  <div style={{ fontSize: '0.75rem', padding: '4px', borderRadius: '20px', backgroundColor: '#FFF5CC', color: '#B38F00', textAlign: 'center', fontWeight: 'bold' }}>
+                    確定 {approvedCount}件
                   </div>
                 )}
               </div>
@@ -187,48 +187,49 @@ export default function ManagerShiftsPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {getShiftsForDate(selectedDate).map(shift => (
-                    <div key={shift.ShiftID} style={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '1rem', backgroundColor: shift.Status === '申請中' ? '#fffbfa' : '#fafafa' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <div key={shift.ShiftID} style={{ border: '1px solid var(--border-color)', borderRadius: '16px', padding: '1.2rem', backgroundColor: shift.Status === '申請中' ? '#FFFFFF' : '#F9F9FB', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                         <div>
-                          <h3 style={{ margin: '0 0 0.2rem 0', fontSize: '1.1rem' }}>{shift.UserName}</h3>
-                          <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: '#333' }}>
+                          <h3 style={{ margin: '0 0 0.2rem 0', fontSize: '1.1rem', color: 'var(--text-color)' }}>{shift.UserName}</h3>
+                          <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-color)' }}>
                             {shift.StartTime.slice(0, 5)} - {shift.EndTime.slice(0, 5)}
                           </p>
                         </div>
                         <span style={{ 
-                          fontSize: '0.8rem', padding: '0.3rem 0.6rem', borderRadius: '20px', fontWeight: 'bold',
-                          backgroundColor: shift.Status === '承認済' ? '#e6f4ea' : shift.Status === '申請中' ? '#fef7e0' : shift.Status === '調整済' ? '#e8f0fe' : '#fce8e6',
-                          color: shift.Status === '承認済' ? '#137333' : shift.Status === '申請中' ? '#b06000' : shift.Status === '調整済' ? '#1967d2' : '#c5221f'
+                          fontSize: '0.8rem', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold',
+                          backgroundColor: (shift.Status === '承認済' || shift.Status === '調整済') ? '#FFF5CC' : shift.Status === '申請中' ? '#F5F5F5' : '#fce8e6',
+                          color: (shift.Status === '承認済' || shift.Status === '調整済') ? '#B38F00' : shift.Status === '申請中' ? '#888888' : '#c5221f',
+                          border: `1px solid ${(shift.Status === '承認済' || shift.Status === '調整済') ? '#FFE066' : shift.Status === '申請中' ? '#E0E0E0' : '#f5c6cb'}`
                         }}>
                           {shift.Status}
                         </span>
                       </div>
 
                       {/* アクションボタン群 */}
-                      <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {adjustingShiftId === shift.ShiftID ? (
                           // 調整モード
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.5rem', backgroundColor: '#e8f0fe', borderRadius: '8px' }}>
-                            <input type="time" value={adjustStart} onChange={e => setAdjustStart(e.target.value)} style={{ padding: '0.4rem', border: '1px solid #ccc', borderRadius: '4px' }} />
-                            <span>〜</span>
-                            <input type="time" value={adjustEnd} onChange={e => setAdjustEnd(e.target.value)} style={{ padding: '0.4rem', border: '1px solid #ccc', borderRadius: '4px' }} />
-                            <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '調整済', adjustStart, adjustEnd)} style={{ padding: '0.5rem 1rem', backgroundColor: '#1967d2', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>決定</button>
-                            <button onClick={() => setAdjustingShiftId(null)} style={{ padding: '0.5rem 1rem', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>キャンセル</button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.8rem', backgroundColor: '#FFF5CC', borderRadius: '12px' }}>
+                            <input type="time" value={adjustStart} onChange={e => setAdjustStart(e.target.value)} style={{ padding: '0.5rem', border: 'none', borderRadius: '8px' }} />
+                            <span style={{ fontWeight: 'bold' }}>〜</span>
+                            <input type="time" value={adjustEnd} onChange={e => setAdjustEnd(e.target.value)} style={{ padding: '0.5rem', border: 'none', borderRadius: '8px' }} />
+                            <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '調整済', adjustStart, adjustEnd)} style={{ padding: '0.5rem 1rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>決定</button>
+                            <button onClick={() => setAdjustingShiftId(null)} style={{ padding: '0.5rem 1rem', backgroundColor: '#fff', color: '#333', border: '1px solid #ccc', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>取消</button>
                           </div>
                         ) : (
                           // 通常のアクションボタン
                           <>
                             {shift.Status !== '承認済' && (
-                              <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '承認済')} style={{ flex: 1, padding: '0.6rem', backgroundColor: '#137333', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                              <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '承認済')} style={{ flex: 1, padding: '0.8rem', backgroundColor: 'var(--primary-color)', color: '#333', border: 'none', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(255, 204, 0, 0.3)' }}>
                                 承認する
                               </button>
                             )}
                             {shift.Status !== '却下' && (
-                              <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '却下')} style={{ flex: 1, padding: '0.6rem', backgroundColor: '#fff', color: '#c5221f', border: '1px solid #c5221f', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                              <button disabled={actionLoading} onClick={() => handleStatusChange(shift.ShiftID, '却下')} style={{ flex: 1, padding: '0.8rem', backgroundColor: '#fff', color: '#333', border: '1px solid #EBEBEB', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>
                                 却下する
                               </button>
                             )}
-                            <button onClick={() => openAdjustMode(shift)} style={{ flex: 1, padding: '0.6rem', backgroundColor: '#fff', color: '#1967d2', border: '1px solid #1967d2', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                            <button onClick={() => openAdjustMode(shift)} style={{ flex: 1, padding: '0.8rem', backgroundColor: '#F5F5F5', color: '#333', border: 'none', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>
                               時間調整
                             </button>
                           </>

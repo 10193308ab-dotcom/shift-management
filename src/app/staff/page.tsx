@@ -186,20 +186,21 @@ export default function StaffCalendar() {
                         let label = shift.Status;
 
                         if (isConfirmed) { 
-                          bgColor = '#e6f4ea'; color = '#137333'; label = '確定'; 
+                          bgColor = '#FFF5CC'; color = '#B38F00'; label = '確定'; 
                         } else if (isPending) { 
-                          bgColor = '#fef7e0'; color = '#b06000'; label = '申請中'; 
+                          bgColor = '#F5F5F5'; color = '#888888'; label = '申請中'; 
                         }
 
                         return (
                           <div key={shift.ShiftID} style={{ 
-                            fontSize: '0.8rem', 
-                            padding: '4px', 
-                            borderRadius: '4px', 
+                            fontSize: '0.75rem', 
+                            padding: '4px 8px', 
+                            borderRadius: '20px', 
                             backgroundColor: bgColor, 
                             color: color, 
                             textAlign: 'center',
-                            fontWeight: 'bold'
+                            fontWeight: 'bold',
+                            border: `1px solid ${isConfirmed ? '#FFE066' : '#E0E0E0'}`
                           }}>
                             {label}
                           </div>
@@ -230,12 +231,13 @@ export default function StaffCalendar() {
                   <div key={shift.ShiftID} style={{ marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <span style={{ 
-                        padding: '0.2rem 0.6rem', 
-                        borderRadius: '4px', 
-                        fontSize: '0.8rem',
+                        padding: '4px 12px', 
+                        borderRadius: '20px', 
+                        fontSize: '0.85rem',
                         fontWeight: 'bold',
-                        backgroundColor: (shift.Status === '承認済' || shift.Status === '調整済') ? '#e6f4ea' : '#fef7e0',
-                        color: (shift.Status === '承認済' || shift.Status === '調整済') ? '#137333' : '#b06000'
+                        backgroundColor: (shift.Status === '承認済' || shift.Status === '調整済') ? '#FFF5CC' : '#F5F5F5',
+                        color: (shift.Status === '承認済' || shift.Status === '調整済') ? '#B38F00' : '#888888',
+                        border: `1px solid ${(shift.Status === '承認済' || shift.Status === '調整済') ? '#FFE066' : '#E0E0E0'}`
                       }}>
                         {(shift.Status === '承認済' || shift.Status === '調整済') ? '確定' : shift.Status}
                       </span>
