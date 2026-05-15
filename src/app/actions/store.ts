@@ -59,3 +59,51 @@ export async function createStoreAccount(formData: FormData) {
 
   return { success: true };
 }
+
+export async function updateStoreDetailsAndAccount(formData: FormData) {
+  const storeId = formData.get('storeId') as string;
+  const storeName = formData.get('storeName') as string;
+  const businessHours = formData.get('businessHours') as string;
+  const loginId = formData.get('loginId') as string;
+  const password = formData.get('password') as string;
+
+  if (!storeId || !storeName) {
+    return { error: '必須項目が不足しています' };
+  }
+
+  // 1. 店舗情報の更新
+  const { error: storeError } = await supabaseAdmin
+    .from('StoreSettings')
+    .update({ StoreName: storeName, BusinessHours: businessHours })
+    .eq('StoreID', storeId);
+
+  if (storeError) {
+    return { error: '店舗情報の更新エラー: ' + storeError.message };
+  }
+
+  // 2. アカウント情報（ID・パスワード）の更新がある場合
+  if (loginId || password) {
+    const { data: userData } = await supabaseAdmin
+      .from('Users')
+      .select('UserID')
+      .eq('StoreID', storeId)
+      .eq('Role', '店長')
+      .single();
+
+    if (userData) {
+      const updates: any = {};
+      if (loginId) {
+        updates.email = loginId.includes('@') ? loginId : `${loginId}@shift.local`;
+      }
+      if (password) {
+        updates.password = password;
+      }
+      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userData.UserID, updates);
+      if (authError) {
+        return { error: 'アカウント更新エラー: ' + authError.message };
+      }
+    }
+  }
+
+  return { success: true };
+}

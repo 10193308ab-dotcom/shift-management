@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { createStoreAccount } from '@/app/actions/store';
+import { createStoreAccount, updateStoreDetailsAndAccount } from '@/app/actions/store';
 
 export default function StoreSettingsPage() {
   const [stores, setStores] = useState<any[]>([]);
@@ -59,21 +59,18 @@ export default function StoreSettingsPage() {
     setEditBusinessHours(store.BusinessHours || '');
   };
 
-  const handleUpdateStore = async (e: React.FormEvent) => {
+  const handleUpdateStore = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editingStoreId) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from('StoreSettings')
-      .update({
-        StoreName: editStoreName,
-        BusinessHours: editBusinessHours
-      })
-      .eq('StoreID', editingStoreId);
+    const formData = new FormData(e.currentTarget);
+    formData.append('storeId', editingStoreId);
 
-    if (error) {
-      alert('保存エラー: ' + error.message);
+    const result = await updateStoreDetailsAndAccount(formData);
+
+    if (result.error) {
+      alert('保存エラー: ' + result.error);
     } else {
       alert('店舗情報を更新しました！');
       setEditingStoreId(null);
@@ -131,17 +128,33 @@ export default function StoreSettingsPage() {
                 {editingStoreId === store.StoreID ? (
                   // 編集モード
                   <form onSubmit={handleUpdateStore} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold' }}>店舗名</label>
-                      <input type="text" value={editStoreName} onChange={e => setEditStoreName(e.target.value)} required style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem' }} />
+                    <div style={{ padding: '1rem', backgroundColor: '#f9f9fb', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+                      <h4 style={{ margin: '0 0 1rem 0', color: '#555' }}>📝 基本情報の編集</h4>
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold' }}>店舗名</label>
+                        <input type="text" name="storeName" value={editStoreName} onChange={e => setEditStoreName(e.target.value)} required style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold' }}>営業時間</label>
+                        <textarea name="businessHours" value={editBusinessHours} onChange={e => setEditBusinessHours(e.target.value)} rows={2} style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold' }}>営業時間</label>
-                      <textarea value={editBusinessHours} onChange={e => setEditBusinessHours(e.target.value)} rows={2} style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem' }} />
+                    
+                    <div style={{ padding: '1rem', backgroundColor: '#fff0f0', borderRadius: '8px', border: '1px solid #ffcccb' }}>
+                      <h4 style={{ margin: '0 0 1rem 0', color: '#c5221f' }}>🔑 ログイン情報の変更 (変更する場合のみ入力)</h4>
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#c5221f' }}>新しいログインID</label>
+                        <input type="text" name="loginId" placeholder="変更しない場合は空欄" style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#c5221f' }}>新しいパスワード（6文字以上）</label>
+                        <input type="text" name="password" minLength={6} placeholder="変更しない場合は空欄" style={{ width: '100%', padding: '0.5rem', marginTop: '0.3rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button type="submit" disabled={saving} style={{ padding: '0.5rem 1rem', backgroundColor: 'var(--primary-color)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>保存する</button>
-                      <button type="button" onClick={() => setEditingStoreId(null)} style={{ padding: '0.5rem 1rem', backgroundColor: '#f0f0f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>キャンセル</button>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <button type="submit" disabled={saving} style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary-color)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存する</button>
+                      <button type="button" onClick={() => setEditingStoreId(null)} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f0f0f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>キャンセル</button>
                     </div>
                   </form>
                 ) : (
