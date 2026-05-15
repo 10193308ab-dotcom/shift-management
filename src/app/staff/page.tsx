@@ -97,7 +97,36 @@ export default function StaffCalendar() {
   };
 
   const [selectedShiftDate, setSelectedShiftDate] = useState<string | null>(null);
+  const [applyDate, setApplyDate] = useState<string | null>(null);
+  const [applyStartTime, setApplyStartTime] = useState('09:00');
+  const [applyEndTime, setApplyEndTime] = useState('17:00');
+  const [applyLoading, setApplyLoading] = useState(false);
+
   const selectedShifts = selectedShiftDate ? getShiftsForDate(parseInt(selectedShiftDate.split('-')[2])) : [];
+
+  const handleApplyShift = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applyDate || !currentUser) return;
+    
+    setApplyLoading(true);
+    const { error } = await supabase
+      .from('Shifts')
+      .insert([{
+        UserID: currentUser.UserID,
+        Date: applyDate,
+        StartTime: applyStartTime,
+        EndTime: applyEndTime,
+        Status: '申請中'
+      }]);
+
+    if (error) {
+      alert('申請エラー: ' + error.message);
+    } else {
+      setApplyDate(null);
+      await fetchData(); // リストを再取得して表示を更新
+    }
+    setApplyLoading(false);
+  };
 
   return (
     <div style={{ margin: '0 -0.5rem', padding: '0.5rem 0' }}>
@@ -129,15 +158,18 @@ export default function StaffCalendar() {
               <div 
                 key={index} 
                 onClick={() => {
-                  if (dayShifts.length > 0 && dateStr) {
+                  if (!dateStr) return;
+                  if (dayShifts.length > 0) {
                     setSelectedShiftDate(dateStr);
+                  } else {
+                    setApplyDate(dateStr);
                   }
                 }}
                 style={{ 
                   backgroundColor: 'var(--surface-color)', 
                   minHeight: '100px', 
                   padding: '0.5rem',
-                  cursor: dayShifts.length > 0 ? 'pointer' : 'default'
+                  cursor: dateStr ? 'pointer' : 'default'
                 }}
               >
                 {day && (
@@ -185,7 +217,7 @@ export default function StaffCalendar() {
         </div>
       </div>
 
-      {/* モーダル表示 */}
+      {/* 詳細モーダル表示 */}
       {selectedShiftDate && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
           <div style={{ backgroundColor: '#fff', borderRadius: '12px', width: '100%', maxWidth: '400px', overflow: 'hidden' }}>
@@ -240,6 +272,34 @@ export default function StaffCalendar() {
             <div style={{ padding: '1rem', borderTop: '1px solid #eee', textAlign: 'center' }}>
               <button onClick={() => setSelectedShiftDate(null)} style={{ padding: '0.5rem 2rem', backgroundColor: '#f0f0f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>閉じる</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新規申請モーダル表示 */}
+      {applyDate && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '12px', width: '100%', maxWidth: '400px', overflow: 'hidden' }}>
+            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{applyDate.replace(/-/g, '/')} のシフト申請</h2>
+              <button onClick={() => setApplyDate(null)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#888' }}>×</button>
+            </div>
+            
+            <form onSubmit={handleApplyShift} style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>開始時間</label>
+                  <input type="time" value={applyStartTime} onChange={e => setApplyStartTime(e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ccc', borderRadius: '8px', fontSize: '1rem' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.5rem', color: '#333', fontWeight: 'bold' }}>終了時間</label>
+                  <input type="time" value={applyEndTime} onChange={e => setApplyEndTime(e.target.value)} required style={{ width: '100%', padding: '0.8rem', border: '1px solid #ccc', borderRadius: '8px', fontSize: '1rem' }} />
+                </div>
+              </div>
+              <button type="submit" disabled={applyLoading} style={{ width: '100%', padding: '1rem', backgroundColor: 'var(--primary-color)', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                {applyLoading ? '申請中...' : 'この時間で申請する'}
+              </button>
+            </form>
           </div>
         </div>
       )}
