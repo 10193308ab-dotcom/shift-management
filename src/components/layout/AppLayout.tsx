@@ -10,14 +10,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   // ログイン画面 (ルート) および登録画面ではナビゲーションを隠す
   const isLoginPage = pathname === '/' || pathname === '/register' || pathname === '/staff-register';
+  
+  const isManager = pathname.startsWith('/manager');
+  const isStaff = pathname.startsWith('/staff');
 
   return (
     <div className="app-layout">
-      {!isLoginPage && <Sidebar />}
+      {!isLoginPage && isManager && <Sidebar />}
       <main className="main-content" style={isLoginPage ? { padding: 0 } : {}}>
         {children}
       </main>
-      {!isLoginPage && <BottomNav />}
+      {!isLoginPage && isStaff && <BottomNav />}
     </div>
   );
 }

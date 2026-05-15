@@ -32,7 +32,9 @@ export async function createStaffAccount(formData: FormData) {
       UserID: authData.user.id,
       StoreID: storeId,
       Name: name,
-      Role: 'スタッフ'
+      Role: 'スタッフ',
+      LoginId: loginId,
+      LoginPassword: password
     }]);
 
   if (userError) {

@@ -141,6 +141,8 @@ export default function StaffManagement() {
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>名前</th>
+                  <th style={{ padding: '0.75rem', color: '#8e8e93' }}>ログインID</th>
+                  <th style={{ padding: '0.75rem', color: '#8e8e93' }}>初期パスワード</th>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>所属店舗</th>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>ステータス</th>
                   <th style={{ padding: '0.75rem', color: '#8e8e93' }}>登録日</th>
@@ -150,6 +152,8 @@ export default function StaffManagement() {
                 {staffList.map((staff) => (
                   <tr key={staff.UserID} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '0.75rem', fontWeight: 'bold' }}>{staff.Name}</td>
+                    <td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>{staff.LoginId || '未設定'}</td>
+                    <td style={{ padding: '0.75rem', fontFamily: 'monospace', color: '#c5221f' }}>{staff.LoginPassword || '未設定'}</td>
                     <td style={{ padding: '0.75rem' }}>{staff.StoreSettings?.StoreName || '未所属'}</td>
                     <td style={{ padding: '0.75rem' }}>
                       <span style={{ 
