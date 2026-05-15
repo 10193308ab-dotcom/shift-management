@@ -44,14 +44,14 @@ export default function RegisterPage() {
       return;
     }
 
-    // 3. ユーザープロフィールの作成（店長として登録）
+    // 3. ユーザープロフィールの作成（本部として登録）
     const { error: userError } = await supabase
       .from('Users')
       .insert([{ 
         UserID: userId, 
         StoreID: storeData.StoreID, 
         Name: name, 
-        Role: '店長' 
+        Role: '本部' 
       }]);
 
     if (userError) {
